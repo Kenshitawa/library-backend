@@ -1,7 +1,7 @@
 -- Sample catalog records for demonstration. Source: KICD December 2024
 -- Addendum to the Orange Book (Pre-primary through Grade 9).
--- Demo titles are deliberately marked in their description. No physical
--- copies are created, so these records cannot be issued accidentally.
+-- Demo titles and copies are deliberately labeled so they can be removed
+-- after the demonstration without confusing them with purchased stock.
 
 INSERT INTO public.borrower_types (name, return_rule, return_days, max_items, max_renewals, can_reserve, overdue_fee_enabled)
 SELECT source.name, source.return_rule, source.return_days, source.max_items, source.max_renewals, true, false
@@ -34,7 +34,10 @@ WITH demo_titles(title, publisher, grade_level, subject_name, cover_url, authors
     ('Love your Neighbour Christian Religious Education Learner’s Book Grade 8', 'Moran', '8', 'Christian Religious Education', '/images/demo-kicd-grade-8.svg', 'Linah Kiget; Patrick Tumusiime'),
     ('Oxford Head Start English Learner’s Book Grade 9', 'Oxford University Press', '9', 'English', '/images/demo-kicd-grade-9.svg', 'Angelina Kioko; Benedict Mutei; Esther Katumbi; Judith Munyiri; Shikuku Shitubi')
 ), subject_ids AS (
-  SELECT id, name FROM public.subjects WHERE deleted_at IS NULL
+  SELECT DISTINCT ON (lower(name)) id, name
+  FROM public.subjects
+  WHERE deleted_at IS NULL
+  ORDER BY lower(name), created_at
 )
 INSERT INTO public.titles (title, publisher, grade_level, subject_id, type, language, description, cover_url, tags)
 SELECT
